@@ -18,14 +18,15 @@ exports.createTask = async (req, res) => {
 
 exports.getTaskList = async (req, res) => {
   try {
+    let page = Number(req.query.page) || 1     
+    let limit = Number(req.query.limit) || 10
     let tasks = await taskModel.find({ isDeleted: false })
       .populate({
         path: 'userId',
-        select: 'name', // Select only the name field from the user document
-        model: 'User'   // Reference the User model
-      });
+        select: 'name', 
+        model: 'User'   
+      }).skip((page - 1)*limit).limit(limit);
 
-    // Transform the tasks to include only the user name
     tasks = tasks.map(task => ({
       _id: task._id,
       title: task.title,

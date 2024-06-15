@@ -1,5 +1,4 @@
 const userModel = require("../models/userModel.js");
-const taskModel = require("../models/taskModel.js");
 let { message, response } = require('../utils/response.js')
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
@@ -79,7 +78,10 @@ exports.loginUser = async (req, res) => {
 
 exports.getUserList = async (req, res) => {
   try {
-    let user = await userModel.find({ userType: "User", isDeleted: false });
+    
+    let page = Number(req.query.page) || 1     
+    let limit = Number(req.query.limit) || 10
+    let user = await userModel.find({ userType: "User", isDeleted: false }).skip((page - 1)*limit).limit(limit);
     if (user) {
       res.status(200).send(response(true, 'Success', user));
     } else {
@@ -90,27 +92,4 @@ exports.getUserList = async (req, res) => {
   }
 };
 
-exports.getAdminCounts = async (req, res) => {
-  try {
-    const [userCount, totalTaskAssigned, pendingTaskCount, completedTaskCount] =
-      await Promise.all([
-        userModel.countDocuments(),
-        taskModel.countDocuments(),
-        taskModel.countDocuments({ status: "pending", isDeleted: false }),
-        taskModel.countDocuments({ status: "completed", isDeleted: false }),
-      ]);
 
-    res.status(200).send({
-      success: true,
-      msg: "Counts fetched successfully",
-      data: {
-        totalUsers: userCount,
-        totalTasks: totalTaskAssigned,
-        pendingTasks: pendingTaskCount,
-        completedTasks: completedTaskCount,
-      },
-    });
-  } catch (error) {
-    return res.status(500).send(response(false, message.catchMessage));
-  }
-};
