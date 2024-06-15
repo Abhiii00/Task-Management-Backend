@@ -18,8 +18,6 @@ router.post('/userRegistration',registerValidation, userController.userRegistrat
 router.post("/loginUser", loginValidation, userController.loginUser)
 
 router.get('/getUserList', authorization, userController.getUserList)
-router.get('/getAdminCounts', authorization, userController.getAdminCounts)
-router.get('/getUserCounts', authorization, userController.getUserCounts)
 
 
 

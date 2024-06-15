@@ -114,36 +114,3 @@ exports.getAdminCounts = async (req, res) => {
     return res.status(500).send(response(false, message.catchMessage));
   }
 };
-
-exports.getUserCounts = async (req, res) => {
-  try {
-    const userId = req.userId;
-
-    const [totalTaskReceived, pendingTaskCount, completedTaskCount] =
-      await Promise.all([
-        taskModel.countDocuments({ userId: userId, isDeleted: false }),
-        taskModel.countDocuments({
-          userId: userId,
-          isDeleted: false,
-          status: "pending",
-        }),
-        taskModel.countDocuments({
-          userId: userId,
-          isDeleted: false,
-          status: "completed",
-        }),
-      ]);
-
-    res.status(200).send({
-      success: true,
-      msg: "Counts fetched successfully",
-      data: {
-        totalTaskReceived: totalTaskReceived,
-        pendingTasks: pendingTaskCount,
-        completedTasks: completedTaskCount,
-      },
-    });
-  } catch (error) {
-    return res.status(500).send(response(false, message.catchMessage));
-  }
-};
